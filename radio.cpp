@@ -505,7 +505,8 @@ void RadioInit( RadioEvents_t *events )
 
   SX126xSetBufferBaseAddress( 0x00, 0x00 );
   SX126xSetTxParams( 0, RADIO_RAMP_200_US );
-  SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+  //SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+  SX126xSetDioIrqParams( IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
 
   SX126xSetDio2AsRfSwitchCtrl(true);
   // Initialize driver timeout timers
@@ -868,7 +869,7 @@ void RadioSend( uint8_t *buffer, uint8_t size )
   SX126xSetDioIrqParams( IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT,
                          IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT,
                          IRQ_RADIO_NONE,
-                         IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT);
+                         IRQ_RADIO_NONE);
 
   if ( SX126xGetPacketType( ) == PACKET_TYPE_LORA )
   {
@@ -1031,16 +1032,16 @@ void RadioSetPublicNetwork( bool enable )
   if ( enable == true )
   {
     // Change LoRa modem SyncWord
-    SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PUBLIC_SYNCWORD >> 8 ) & 0xFF );
-    SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PUBLIC_SYNCWORD & 0xFF );
-    //SX126xSetSyncWord(0x12);
+    //SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PUBLIC_SYNCWORD >> 8 ) & 0xFF );
+    //SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PUBLIC_SYNCWORD & 0xFF );
+    SX126xSetSyncWord(0x12);
   }
   else
   {
     // Change LoRa modem SyncWord
-    SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PRIVATE_SYNCWORD >> 8 ) & 0xFF );
-    SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PRIVATE_SYNCWORD & 0xFF );
-    //SX126xSetSyncWord(0x34);
+    //SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PRIVATE_SYNCWORD >> 8 ) & 0xFF );
+    //SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PRIVATE_SYNCWORD & 0xFF );
+    SX126xSetSyncWord(0x34);
   }
 }
 
@@ -1180,4 +1181,5 @@ void RadioIrqProcess( void )
       }
     }
   }
+  Serial.println("end irq");
 }

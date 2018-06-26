@@ -173,7 +173,7 @@ void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size 
     for( uint16_t i = 0; i < size; i++ )
     {
         buffer[i] = SPI.transfer(0x00);
-        Serial.println(buffer[0],BIN);
+        //Serial.println(buffer[0],BIN);
         //buffer[i] = SpiInOut( &SX126x.Spi, 0 );
     }
     digitalWrite(RADIO_NSS,LOW); 
@@ -308,6 +308,7 @@ uint8_t SX126xGetPaSelect( uint32_t channel )
 //     {
 //         return SX1262;
 //     }
+  return SX1261; 
 }
 
 void SX126xAntSwOn( void )

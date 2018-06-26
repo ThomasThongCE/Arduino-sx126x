@@ -11,14 +11,14 @@
 #define RF_FREQUENCY                                868000000 // Hz
 
 #define LORA_BANDWIDTH                              0         // [0: 125 kHz,
-//  1: 250 kHz,
-//  2: 500 kHz,
-//  3: Reserved]
-#define LORA_SPREADING_FACTOR                       12        // [SF7..SF12]
+                                                              //  1: 250 kHz,
+                                                              //  2: 500 kHz,
+                                                              //  3: Reserved]
+#define LORA_SPREADING_FACTOR                       10        // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
-//  2: 4/6,
-//  3: 4/7,
-//  4: 4/8]
+                                                              //  2: 4/6,
+                                                              //  3: 4/7,
+                                                              //  4: 4/8]
 #define LORA_SYMBOL_TIMEOUT                         5         // Symbols
 #define LORA_PREAMBLE_LENGTH                        8         // Same for Tx and Rx
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
@@ -27,12 +27,13 @@
 #define TX_OUTPUT_POWER                             20
 static RadioEvents_t RadioEvents;
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
-
 void OnTxDone(void);
+void OnTxTimeout(void);
 uint8_t packet[] = {'h','e','l','l','o'};
 
  RadioStatus_t status;
   uint16_t Interrupt;
+  RadioError_t error;
 
 void setup() {
   // put your setup code here, to run once:
@@ -40,6 +41,12 @@ void setup() {
   
   SPI.begin();
   SX126xIoInit();
+  SX126xCalibrateImage(868000000);
+  CalibrationParams_t calibParam;
+
+  calibParam.Value = 0x7F;
+  SX126xCalibrate( calibParam );
+  
   Serial.begin(115200);
   Serial.println("Begin");
   status = SX126xGetStatus();
@@ -48,6 +55,7 @@ void setup() {
   
   RadioEvents.RxDone = OnRxDone;
   RadioEvents.TxDone = OnTxDone;
+  RadioEvents.TxTimeout = OnTxTimeout;
 
   Radio.Init( &RadioEvents );
   Serial.println("Init events");
@@ -69,8 +77,8 @@ void setup() {
   Serial.println("Set Tx config");
 #endif
   
-delay(3000);
-
+delay(5000);
+  SX126xClearIrqStatus( IRQ_RADIO_ALL );
   status = SX126xGetStatus();
   Serial.print("Status : ");
   Serial.println(status.Value,BIN);
@@ -82,8 +90,8 @@ delay(3000);
   #ifdef Receive
   Radio.Rx( 0 ); // Continuous Rx
   Serial.println("RX");
-#else
-  Radio.Send(packet,5);
+  #else
+  Radio.Send(packet,4);
   Serial.println("Sent");
   #endif
   
@@ -91,13 +99,9 @@ delay(3000);
   Serial.print("Status : ");
   Serial.println(status.Value,BIN);
 
-  delay(500);
-  status = SX126xGetStatus();
-  Serial.print("Status : ");
-  Serial.println(status.Value,BIN);
-//  Interrupt = SX126xGetIrqStatus();
-//  Serial.print("interrupt status : ");
-//  Serial.println(Interrupt,BIN);
+  Interrupt = SX126xGetIrqStatus();
+  Serial.print("interrupt status : ");
+  Serial.println(Interrupt,BIN);
 //while(1)
 //{
 //  delay(500);
@@ -111,17 +115,21 @@ delay(3000);
 void loop() {
   // put your main code here, to run repeatedly:
 //  delay (3000);
-//  status = SX126xGetStatus();
-//  Serial.print("Status : ");
-//  Serial.println(status.Value,BIN);
-//
-//  Interrupt = SX126xGetIrqStatus();
-//  Serial.print("interrupt status : ");
-//  Serial.println(Interrupt,BIN);
-//SX126xClearIrqStatus( IRQ_RADIO_ALL );
-//Serial.print("RSSI : ");
-  //Serial.println(SX126xGetRssiInst());
-//SX126xClearIrqStatus( IRQ_RADIO_ALL );
+  status = SX126xGetStatus();
+  Serial.print("Status : ");
+  Serial.println(status.Value,BIN);
+
+  Interrupt = SX126xGetIrqStatus();
+  Serial.print("interrupt status : ");
+  Serial.println(Interrupt,BIN);
+
+  error = SX126xGetDeviceErrors();
+  Serial.print("error bit : ");
+  Serial.println(error.Value,BIN);
+//  SX126xClearIrqStatus( IRQ_RADIO_ALL );
+//  Serial.print("RSSI : ");
+//  Serial.println(SX126xGetRssiInst());
+//  SX126xClearIrqStatus( IRQ_RADIO_ALL );
   digitalWrite(LED,HIGH);
     delay(2000);
     digitalWrite(LED,LOW);
@@ -144,16 +152,22 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
   Serial.print("SNR : ");
   Serial.println(snr);
   
-  
   digitalWrite(LED,LOW);
 }
 
 void OnTxDone(void)
 {
-  digitalWrite(LED,HIGH);
-  delay(200);
+//  digitalWrite(LED,HIGH);
+//  delay(200);
   Serial.println("tx finish");
-  Radio.Send(packet,5);
-  Serial.println("Sent");
-  digitalWrite(LED,LOW);
+//  Radio.Send(packet,5);
+//  Serial.println("Sent");
+//  digitalWrite(LED,LOW);
 }
+
+void OnTxTimeout()
+{
+  Serial.println("tx timeout");
+}
+
+
