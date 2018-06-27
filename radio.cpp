@@ -505,8 +505,8 @@ void RadioInit( RadioEvents_t *events )
 
   SX126xSetBufferBaseAddress( 0x00, 0x00 );
   SX126xSetTxParams( 0, RADIO_RAMP_200_US );
-  //SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
-  SX126xSetDioIrqParams( IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+  SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+  //SX126xSetDioIrqParams( IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_TX_DONE | IRQ_RX_TX_TIMEOUT, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
 
   SX126xSetDio2AsRfSwitchCtrl(true);
   // Initialize driver timeout timers
@@ -562,31 +562,31 @@ void RadioSetChannel( uint32_t freq )
 bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
 {
   bool status = true;
-//  int16_t rssi = 0;
-//  uint32_t carrierSenseTime = 0;
-//
-//  RadioSetModem( modem );
-//
-//  RadioSetChannel( freq );
-//
-//  RadioRx( 0 );
-//
-//  delay( 1 );
-//
-//  carrierSenseTime = TimerGetCurrentTime( );
-//
-//  // Perform carrier sense for maxCarrierSenseTime
-//  while ( TimerGetElapsedTime( carrierSenseTime ) < maxCarrierSenseTime )
-//  {
-//    rssi = RadioRssi( modem );
-//
-//    if ( rssi > rssiThresh )
-//    {
-//      status = false;
-//      break;
-//    }
-//  }
-//  RadioSleep( );
+  //  int16_t rssi = 0;
+  //  uint32_t carrierSenseTime = 0;
+  //
+  //  RadioSetModem( modem );
+  //
+  //  RadioSetChannel( freq );
+  //
+  //  RadioRx( 0 );
+  //
+  //  delay( 1 );
+  //
+  //  carrierSenseTime = TimerGetCurrentTime( );
+  //
+  //  // Perform carrier sense for maxCarrierSenseTime
+  //  while ( TimerGetElapsedTime( carrierSenseTime ) < maxCarrierSenseTime )
+  //  {
+  //    rssi = RadioRssi( modem );
+  //
+  //    if ( rssi > rssiThresh )
+  //    {
+  //      status = false;
+  //      break;
+  //    }
+  //  }
+  //  RadioSleep( );
   return status;
 }
 
@@ -833,11 +833,11 @@ uint32_t RadioTimeOnAir( RadioModems_t modem, uint8_t pktLen )
     case MODEM_FSK:
       {
         airTime = ( 8 * ( SX126x.PacketParams.Params.Gfsk.PreambleLength +
-                                ( SX126x.PacketParams.Params.Gfsk.SyncWordLength >> 3 ) +
-                                ( ( SX126x.PacketParams.Params.Gfsk.HeaderType == RADIO_PACKET_FIXED_LENGTH ) ? 0.0 : 1.0 ) +
-                                pktLen +
-                                ( ( SX126x.PacketParams.Params.Gfsk.CrcLength == RADIO_CRC_2_BYTES ) ? 2.0 : 0 ) ) /
-                          SX126x.ModulationParams.Params.Gfsk.BitRate ) * 1e3 ;
+                          ( SX126x.PacketParams.Params.Gfsk.SyncWordLength >> 3 ) +
+                          ( ( SX126x.PacketParams.Params.Gfsk.HeaderType == RADIO_PACKET_FIXED_LENGTH ) ? 0.0 : 1.0 ) +
+                          pktLen +
+                          ( ( SX126x.PacketParams.Params.Gfsk.CrcLength == RADIO_CRC_2_BYTES ) ? 2.0 : 0 ) ) /
+                    SX126x.ModulationParams.Params.Gfsk.BitRate ) * 1e3 ;
       }
       break;
     case MODEM_LORA:
@@ -1032,16 +1032,16 @@ void RadioSetPublicNetwork( bool enable )
   if ( enable == true )
   {
     // Change LoRa modem SyncWord
-    //SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PUBLIC_SYNCWORD >> 8 ) & 0xFF );
-    //SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PUBLIC_SYNCWORD & 0xFF );
-    SX126xSetSyncWord(0x12);
+    SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PUBLIC_SYNCWORD >> 8 ) & 0xFF );
+    SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PUBLIC_SYNCWORD & 0xFF );
+    //SX126xSetSyncWord(0x12);
   }
   else
   {
     // Change LoRa modem SyncWord
-    //SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PRIVATE_SYNCWORD >> 8 ) & 0xFF );
-    //SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PRIVATE_SYNCWORD & 0xFF );
-    SX126xSetSyncWord(0x34);
+    SX126xWriteRegister( REG_LR_SYNCWORD, ( LORA_MAC_PRIVATE_SYNCWORD >> 8 ) & 0xFF );
+    SX126xWriteRegister( REG_LR_SYNCWORD + 1, LORA_MAC_PRIVATE_SYNCWORD & 0xFF );
+    //SX126xSetSyncWord(0x34);
   }
 }
 
@@ -1083,11 +1083,11 @@ void RadioIrqProcess( void )
     BoardEnableIrq( );
 
     uint16_t Interrupt = SX126xGetIrqStatus();
-  Serial.print("interrupt before clear : ");
-  Serial.println(Interrupt,BIN);
+    Serial.print("interrupt before clear : ");
+    Serial.println(Interrupt, BIN);
     uint16_t irqRegs = SX126xGetIrqStatus( );
     Serial.print("interrupt after clear : ");
-  Serial.println(irqRegs,BIN);
+    Serial.println(irqRegs, BIN);
     SX126xClearIrqStatus( IRQ_RADIO_ALL );
 
     if ( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )

@@ -62,6 +62,7 @@
  */
 //Gpio_t AntPow;
 //Gpio_t DeviceSel;
+SPISettings settings(1000000, MSBFIRST, SPI_MODE0);
 
 void SX126xIoInit( void )
 {
@@ -109,6 +110,7 @@ void SX126xReset( void )
 
 void SX126xWaitOnBusy( void )
 {
+  delay(1);
     while(digitalRead(RADIO_BUSY) == HIGH);
     //while( GpioRead( &SX126x.BUSY ) == 1 );
 }
@@ -116,7 +118,8 @@ void SX126xWaitOnBusy( void )
 void SX126xWakeup( void )
 {
     BoardDisableIrq( );
-
+    SPI.beginTransaction(settings);
+    
     digitalWrite(RADIO_NSS,LOW); 
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -128,6 +131,8 @@ void SX126xWakeup( void )
     digitalWrite(RADIO_NSS,HIGH); 
     // GpioWrite( &SX126x.Spi.Nss, 1 );
 
+    SPI.endTransaction();
+
     // Wait for chip to be ready.
     SX126xWaitOnBusy( );
 
@@ -138,6 +143,7 @@ void SX126xWriteCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings);
     digitalWrite(RADIO_NSS,LOW); 
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -153,6 +159,8 @@ void SX126xWriteCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size
     digitalWrite(RADIO_NSS,HIGH); 
     //GpioWrite( &SX126x.Spi.Nss, 1 );
 
+    SPI.endTransaction();
+
     if( command != RADIO_SET_SLEEP )
     {
         SX126xWaitOnBusy( );
@@ -163,6 +171,7 @@ void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size 
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings); 
     digitalWrite(RADIO_NSS,LOW); 
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -170,14 +179,17 @@ void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size 
     SPI.transfer(0x00);
     //SpiInOut( &SX126x.Spi, ( uint8_t )command );
     //SpiInOut( &SX126x.Spi, 0x00 );
+    //SPI.setBitOrder(LSBFIRST);
     for( uint16_t i = 0; i < size; i++ )
     {
         buffer[i] = SPI.transfer(0x00);
         //Serial.println(buffer[0],BIN);
         //buffer[i] = SpiInOut( &SX126x.Spi, 0 );
     }
-    digitalWrite(RADIO_NSS,LOW); 
+    digitalWrite(RADIO_NSS,HIGH); 
     //GpioWrite( &SX126x.Spi.Nss, 1 );
+
+    SPI.endTransaction();
 
     SX126xWaitOnBusy( );
 }
@@ -186,6 +198,7 @@ void SX126xWriteRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings);
     digitalWrite(RADIO_NSS,LOW);
     //GpioWrite( &SX126x.Spi.Nss, 0 );
     
@@ -205,6 +218,8 @@ void SX126xWriteRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
     digitalWrite(RADIO_NSS,HIGH);
     //GpioWrite( &SX126x.Spi.Nss, 1 );
 
+    SPI.endTransaction();
+
     SX126xWaitOnBusy( );
 }
 
@@ -217,6 +232,7 @@ void SX126xReadRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings);
     digitalWrite(RADIO_NSS,LOW);
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -237,6 +253,8 @@ void SX126xReadRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
     digitalWrite(RADIO_NSS,HIGH);
     //GpioWrite( &SX126x.Spi.Nss, 1 );
 
+    SPI.endTransaction();
+
     SX126xWaitOnBusy( );
 }
 
@@ -251,6 +269,7 @@ void SX126xWriteBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings);
     digitalWrite(RADIO_NSS,LOW);
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -266,6 +285,8 @@ void SX126xWriteBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
     digitalWrite(RADIO_NSS,HIGH);
     //GpioWrite( &SX126x.Spi.Nss, 1 );
 
+    SPI.endTransaction();
+
     SX126xWaitOnBusy( );
 }
 
@@ -273,6 +294,7 @@ void SX126xReadBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
 {
     SX126xCheckDeviceReady( );
 
+    SPI.beginTransaction(settings);
     digitalWrite(RADIO_NSS,LOW);
     //GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -289,6 +311,8 @@ void SX126xReadBuffer( uint8_t offset, uint8_t *buffer, uint8_t size )
     }
     digitalWrite(RADIO_NSS,HIGH);
     // GpioWrite( &SX126x.Spi.Nss, 1 );
+
+    SPI.endTransaction();
 
     SX126xWaitOnBusy( );
 }
