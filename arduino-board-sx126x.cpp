@@ -35,29 +35,6 @@
 #include <SPI.h>
 
 /*!
- * Defines the time required for the TCXO to wakeup [ms].
- */
-#define BOARD_TCXO_WAKEUP_TIME                      0
-
-/*!
- * Board MCU pins definitions
- */
-#define RADIO_RESET                                 1                       
-
-#define RADIO_MOSI                                  11
-#define RADIO_MISO                                  12
-#define RADIO_SCLK                                  13
-#define RADIO_NSS                                   10
-#define RADIO_BUSY                                  6
-                                
-#define RADIO_DIO_1                                 3
-#define RADIO_DIO_2                                 
-#define RADIO_DIO_3                                 7                            
-                                
-
-#define RADIO_DEVICE_SEL                            A1
-
-/*!
  * Antenna switch GPIO pins objects
  */
 //Gpio_t AntPow;
