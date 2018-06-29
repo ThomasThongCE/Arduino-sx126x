@@ -49,14 +49,6 @@ void setup() {
 
   calibParam.Value = 0x7F;
   SX126xCalibrate( calibParam );
-  error = SX126xGetDeviceErrors();
-  Serial.print("error code : ");
-  Serial.println(error.Value,BIN);
-
-  
-  status = SX126xGetStatus();
-  Serial.print("Begin Status : ");
-  Serial.println(status.Value,BIN);
   
   RadioEvents.RxDone = OnRxDone;
   RadioEvents.TxDone = OnTxDone;
@@ -64,17 +56,9 @@ void setup() {
 
   Radio.Init( &RadioEvents );
   Serial.println("Init events");
-
-  Interrupt = SX126xGetIrqStatus();
-  Serial.print("interrupt status : ");
-  Serial.println(Interrupt,BIN);
   
   Radio.SetChannel( RF_FREQUENCY );
   Serial.println("Set rf frequency");
-
-  Interrupt = SX126xGetIrqStatus();
-  Serial.print("interrupt status : ");
-  Serial.println(Interrupt,BIN);
 
   Radio.SetPublicNetwork(true);
 #ifdef Receive
@@ -91,14 +75,6 @@ void setup() {
   Serial.println("Set Tx config");
 #endif
 
-  status = SX126xGetStatus();
-  Serial.print("Status : ");
-  Serial.println(status.Value,BIN);
-
-  Interrupt = SX126xGetIrqStatus();
-  Serial.print("interrupt status : ");
-  Serial.println(Interrupt,BIN);
-
   #ifdef Receive
   Radio.Rx( 0 ); // Continuous Rx
   Serial.println("RX");
@@ -106,14 +82,6 @@ void setup() {
   Radio.Send(packet,5);
   Serial.println("Sent");
   #endif
-  
-  status = SX126xGetStatus();
-  Serial.print("Status : ");
-  Serial.println(status.Value,BIN);
-
-  Interrupt = SX126xGetIrqStatus();
-  Serial.print("interrupt status : ");
-  Serial.println(Interrupt,BIN);
 }
 
 void loop() {

@@ -34,11 +34,6 @@
 //#include "board-config.h"
 #include <SPI.h>
 
-/*!
- * Antenna switch GPIO pins objects
- */
-//Gpio_t AntPow;
-//Gpio_t DeviceSel;
 SPISettings settings(1000000, MSBFIRST, SPI_MODE0);
 
 void SX126xIoInit( void )
