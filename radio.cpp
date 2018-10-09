@@ -1069,13 +1069,12 @@ void RadioOnRxTimeoutIrq( void )
 void RadioOnDioIrq( void )
 {
   IrqFired = true;
-  Serial.println("Interrupted");
   RadioIrqProcess();
 }
 
 void RadioIrqProcess( void )
 {
-  Serial.println("inside RadioIRqProcess");
+  //Serial.println("inside RadioIRqProcess");
   if ( IrqFired == true )
   {
     BoardDisableIrq( );
@@ -1083,17 +1082,17 @@ void RadioIrqProcess( void )
     BoardEnableIrq( );
 
     uint16_t Interrupt = SX126xGetIrqStatus();
-    Serial.print("interrupt before clear : ");
-    Serial.println(Interrupt, BIN);
+    //Serial.print("interrupt before clear : ");
+    //Serial.println(Interrupt, BIN);
     uint16_t irqRegs = SX126xGetIrqStatus( );
-    Serial.print("interrupt after clear : ");
-    Serial.println(irqRegs, BIN);
+    //Serial.print("interrupt after clear : ");
+    //Serial.println(irqRegs, BIN);
     SX126xClearIrqStatus( IRQ_RADIO_ALL );
 
     if ( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
     {
       //TimerStop( &TxTimeoutTimer );
-      Serial.println("TxDone");
+      //Serial.println("TxDone");
       if ( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
       {
         RadioEvents->TxDone( );
@@ -1105,7 +1104,7 @@ void RadioIrqProcess( void )
       uint8_t size;
 
       //TimerStop( &RxTimeoutTimer );
-      Serial.println("RxDone");
+      //Serial.println("RxDone");
       SX126xGetPayload( RadioRxPayload, &size , 255 );
       SX126xGetPacketStatus( &RadioPktStatus );
       if ( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
@@ -1116,7 +1115,7 @@ void RadioIrqProcess( void )
 
     if ( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
     {
-      Serial.println("CRC_ERROR");
+      //Serial.println("CRC_ERROR");
       if ( ( RadioEvents != NULL ) && ( RadioEvents->RxError ) )
       {
         RadioEvents->RxError( );
@@ -1125,7 +1124,7 @@ void RadioIrqProcess( void )
 
     if ( ( irqRegs & IRQ_CAD_DONE ) == IRQ_CAD_DONE )
     {
-      Serial.println("CADDone");
+      //Serial.println("CADDone");
       if ( ( RadioEvents != NULL ) && ( RadioEvents->CadDone != NULL ) )
       {
         RadioEvents->CadDone( ( ( irqRegs & IRQ_CAD_ACTIVITY_DETECTED ) == IRQ_CAD_ACTIVITY_DETECTED ) );
@@ -1134,7 +1133,7 @@ void RadioIrqProcess( void )
 
     if ( ( irqRegs & IRQ_RX_TX_TIMEOUT ) == IRQ_RX_TX_TIMEOUT )
     {
-      Serial.println("Tx Rx TimeOut");
+      //Serial.println("Tx Rx TimeOut");
       if ( SX126xGetOperatingMode( ) == MODE_TX )
       {
         //TimerStop( &TxTimeoutTimer );
@@ -1155,25 +1154,25 @@ void RadioIrqProcess( void )
 
     if ( ( irqRegs & IRQ_PREAMBLE_DETECTED ) == IRQ_PREAMBLE_DETECTED )
     {
-      Serial.println("Preamble Detected");
+      //Serial.println("Preamble Detected");
       //__NOP( );
     }
 
     if ( ( irqRegs & IRQ_SYNCWORD_VALID ) == IRQ_SYNCWORD_VALID )
     {
-      Serial.println("SyncWord Valid");
+      //Serial.println("SyncWord Valid");
       //__NOP( );
     }
 
     if ( ( irqRegs & IRQ_HEADER_VALID ) == IRQ_HEADER_VALID )
     {
-      Serial.println("Header Valid");
+      //Serial.println("Header Valid");
       //__NOP( );
     }
 
     if ( ( irqRegs & IRQ_HEADER_ERROR ) == IRQ_HEADER_ERROR )
     {
-      Serial.println("Header Error");
+      //Serial.println("Header Error");
       //TimerStop( &RxTimeoutTimer );
       if ( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
       {
@@ -1181,5 +1180,5 @@ void RadioIrqProcess( void )
       }
     }
   }
-  Serial.println("end irq");
+  //Serial.println("end irq");
 }
